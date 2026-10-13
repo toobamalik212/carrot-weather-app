@@ -1,17 +1,16 @@
 import { createElement } from "react";
 import { notFound } from "next/navigation";
 import { cities } from "@/data/cities";
-import { getWeather } from "../actions/actions";
+import { getWeatherDetails } from "../actions/actions";
 import { getWeatherIcon } from "../lib/weatherIcons";
 import { getWeatherDescription } from "../lib/weatherDescriptions";
 import { getWeatherBackground } from "../lib/weatherBackgrounds";
 import {
   getCurrentTimeInTimezone,
   formatDate,
-  getDayName,
   isNightTime,
 } from "../lib/utils";
-import { DaysListItem } from "../components/DaysListItem";
+import { ForecastSection } from "../components/ForecastSection";
 import { TemperatureDisplay } from "../components/TemperatureDisplay";
 
 interface PageProps {
@@ -26,7 +25,7 @@ export default async function LocationPage({ params }: PageProps) {
     notFound();
   }
 
-  const weather = await getWeather(location.latitude, location.longitude);
+  const weather = await getWeatherDetails(location.latitude, location.longitude);
   const todayForecast = weather.daily[0];
   const Icon = getWeatherIcon(weather.current.weatherCode);
   const description = getWeatherDescription(weather.current.weatherCode);
@@ -66,25 +65,7 @@ export default async function LocationPage({ params }: PageProps) {
             </section>
           </header>
 
-          <section>
-            <h2 className="text-base font-semibold mb-4 text-shadow-md">
-              7-Day Forecast
-            </h2>
-            <ul className="flex flex-col">
-              {weather.daily.map((day, index) => {
-                const DayIcon = getWeatherIcon(day.weatherCode);
-                return (
-                  <DaysListItem
-                    key={day.date}
-                    day={getDayName(day.date, index)}
-                    maxTemp={day.maxTemp}
-                    minTemp={day.minTemp}
-                    Icon={DayIcon}
-                  />
-                );
-              })}
-            </ul>
-          </section>
+          <ForecastSection days={weather.daily} />
         </div>
       </div>
     </div>
