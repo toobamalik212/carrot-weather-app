@@ -1,5 +1,5 @@
 import { createElement } from "react";
-import type { DailyForecastDetail } from "../lib/types";
+import type { DailyForecastWithPeriods } from "../lib/types";
 import { getWeatherIcon } from "../lib/weatherIcons";
 import { getWeatherDescription } from "../lib/weatherDescriptions";
 import { formatDate } from "../lib/utils";
@@ -9,14 +9,25 @@ import {
   formatWind,
 } from "../lib/weatherDetails";
 import { TemperatureDisplay } from "./TemperatureDisplay";
+import { DayPeriodSection } from "./DayPeriodSection";
+import { GlassCard } from "./GlassCard";
+import { WeatherMetrics } from "./WeatherMetrics";
 
 interface DayDetailPanelProps {
   dayName: string;
-  day: DailyForecastDetail;
+  day: DailyForecastWithPeriods;
 }
 
 export function DayDetailPanel({ dayName, day }: DayDetailPanelProps) {
   const Icon = getWeatherIcon(day.weatherCode);
+  const dateLabel = formatDate(day.date);
+  const weatherDescription = getWeatherDescription(day.weatherCode);
+  const feelsLike =
+    day.feelsLikeMax === null ? (
+      "—"
+    ) : (
+      <TemperatureDisplay value={day.feelsLikeMax} />
+    );
 
   const metrics = [
     { label: "Max UV index", value: formatUvIndex(day.uvIndexMax) },
@@ -40,18 +51,22 @@ export function DayDetailPanel({ dayName, day }: DayDetailPanelProps) {
       value: formatMetric(day.precipitationHours, "h"),
     },
     { label: "Cloud cover", value: formatMetric(day.cloudCoverMean, "%") },
+    { label: "Sunshine", value: formatMetric(day.sunshineHours, "h", 1) },
+    { label: "Thunderstorm risk", value: day.thunderstormRisk ?? "—" },
   ];
+  const periodSections = day.periods.map((period) => (
+    <DayPeriodSection key={`${day.date}-${period.label}`} period={period} />
+  ));
+  const periodContent =
+    day.periods.length > 0 ? <div>{periodSections}</div> : null;
 
   return (
-    <section
-      aria-live="polite"
-      className="flex flex-col gap-6 py-6 px-7 rounded-2xl bg-white/5 shadow-lg shadow-black/30 inset-shadow-xs inset-shadow-white/10"
-    >
+    <GlassCard as="section" aria-live="polite" className="flex flex-col gap-6">
       <header className="flex justify-between items-center gap-4">
         <div className="flex flex-col gap-1">
           <h3 className="text-base font-semibold text-shadow-md">{dayName}</h3>
           <p className="text-sm text-muted-foreground text-shadow-sm">
-            {formatDate(day.date)}
+            {dateLabel}
           </p>
         </div>
         <div className="flex items-center gap-4">
@@ -66,31 +81,18 @@ export function DayDetailPanel({ dayName, day }: DayDetailPanelProps) {
       </header>
 
       <div className="flex flex-col gap-1">
-        <p className="text-base text-shadow-sm">
-          {getWeatherDescription(day.weatherCode)}
-        </p>
+        <p className="text-base text-shadow-sm">{weatherDescription}</p>
         <p className="text-sm text-muted-foreground text-shadow-sm">
-          Feels like{" "}
-          {day.feelsLikeMax === null ? (
-            "—"
-          ) : (
-            <TemperatureDisplay value={day.feelsLikeMax} />
-          )}
+          Feels like {feelsLike}
         </p>
       </div>
 
-      <dl className="grid grid-cols-2 gap-x-6 gap-y-4 border-t border-border pt-6">
-        {metrics.map((metric) => (
-          <div key={metric.label} className="flex flex-col gap-0.5">
-            <dt className="text-xs text-muted-foreground text-shadow-sm">
-              {metric.label}
-            </dt>
-            <dd className="text-base font-medium text-shadow-sm">
-              {metric.value}
-            </dd>
-          </div>
-        ))}
-      </dl>
-    </section>
+      <WeatherMetrics
+        items={metrics}
+        className="grid grid-cols-2 gap-x-6 gap-y-4 border-t border-border pt-6"
+      />
+
+      {periodContent}
+    </GlassCard>
   );
 }

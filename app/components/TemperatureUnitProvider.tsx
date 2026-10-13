@@ -20,6 +20,8 @@ export function TemperatureUnitProvider({
   children: ReactNode;
 }) {
   const [unit, setUnit] = useState<TemperatureUnit>("C");
+  // Without this flag, the save effect below would run on mount and write the
+  // default "C" over the user's stored choice before it has been read.
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {

@@ -43,6 +43,7 @@ export interface DailyForecastDetail extends DailyForecast {
   showersSum: number | null;
   precipitationHours: number | null;
   cloudCoverMean: number | null;
+  sunshineHours: number | null;
   sunrise: string;
   sunset: string;
 }
@@ -61,7 +62,32 @@ export interface HourlyForecast {
   windSpeed: number | null;
   windDirection: number | null;
   windGusts: number | null;
+  cape: number | null; // atmospheric instability, J/kg
   isDay: boolean;
+}
+
+// Summary of the hours in one part of a day, e.g. Morning (06:00–12:00)
+export interface DayPeriodSummary {
+  label: string;
+  timeRange: string; // e.g. "6 AM – 12 PM"
+  weatherCode: number | null; // most severe code in the period
+  maxTemp: number | null;
+  feelsLikeMax: number | null;
+  precipitationProbability: number | null; // highest hourly value
+  precipitation: number | null; // total mm
+  windSpeed: number | null; // highest hourly value
+  windGusts: number | null; // highest hourly value
+  windDirection: number | null; // average direction, degrees
+  cloudCover: number | null; // average %
+}
+
+// Estimated from hourly weather codes and instability (CAPE).
+// Open-Meteo has no thunderstorm probability, so this is a rough guide.
+export type ThunderstormRisk = "None" | "Possible" | "Likely";
+
+export interface DailyForecastWithPeriods extends DailyForecastDetail {
+  periods: DayPeriodSummary[];
+  thunderstormRisk: ThunderstormRisk | null;
 }
 
 export interface WeatherDetailsData {

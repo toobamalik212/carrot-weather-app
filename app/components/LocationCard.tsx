@@ -47,7 +47,8 @@ export function LocationCard({
           <Icon
             className="size-12 [--animation-duration:0] group-hover:[--animation-duration:4s]"
             isNight={isNight}
-          />        </div>
+          />
+        </div>
       </div>
     </Link>
   );

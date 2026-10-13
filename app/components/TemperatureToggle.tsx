@@ -5,6 +5,14 @@ import { useTemperatureUnit } from "./TemperatureUnitProvider";
 
 export function TemperatureToggle() {
   const { unit, setUnit } = useTemperatureUnit();
+  const isFahrenheit = unit === "F";
+  const switchLabel = isFahrenheit
+    ? "Switch to Celsius"
+    : "Switch to Fahrenheit";
+
+  function handleUnitChange(checked: boolean) {
+    setUnit(checked ? "F" : "C");
+  }
 
   return (
     <div className="flex items-center gap-2 text-sm font-medium">
@@ -12,9 +20,9 @@ export function TemperatureToggle() {
         Celsius
       </span>
       <Switch
-        checked={unit === "F"}
-        onCheckedChange={(checked) => setUnit(checked ? "F" : "C")}
-        aria-label={`Switch to ${unit === "C" ? "Fahrenheit" : "Celsius"}`}
+        checked={isFahrenheit}
+        onCheckedChange={handleUnitChange}
+        aria-label={switchLabel}
         className="data-checked:bg-sky-500"
       />
       <span className="text-white">

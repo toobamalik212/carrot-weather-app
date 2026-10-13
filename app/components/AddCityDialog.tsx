@@ -37,6 +37,7 @@ export function AddCityDialog({ savedSlugs, onAddCity }: AddCityDialogProps) {
   const availableCities = cities.filter(
     (city) => !savedSlugs.includes(city.slug)
   );
+  const canSubmit = selectedCity !== null;
 
   function handleOpenChange(nextOpen: boolean) {
     setOpen(nextOpen);
@@ -93,7 +94,7 @@ export function AddCityDialog({ savedSlugs, onAddCity }: AddCityDialogProps) {
             <DialogClose render={<Button variant="outline" />}>
               Cancel
             </DialogClose>
-            <Button type="submit" disabled={!selectedCity}>
+            <Button type="submit" disabled={!canSubmit}>
               Add city
             </Button>
           </DialogFooter>

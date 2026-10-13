@@ -11,7 +11,9 @@ export async function getWeather(
   lat: number,
   lon: number
 ): Promise<WeatherData> {
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,weather_code,sunrise,sunset&timezone=auto&forecast_days=7`;
+  // timezone=auto makes Open-Meteo return dates and times in the city's local
+  // time, without an offset. The date helpers in lib/ rely on that.
+  const url =`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,weather_code,sunrise,sunset&timezone=auto&forecast_days=7`;
 
   const response = await fetch(url);
 
@@ -26,6 +28,8 @@ export async function getWeather(
       temperature: Math.round(data.current.temperature_2m),
       weatherCode: data.current.weather_code,
       timezone: data.timezone,
+      // daily[0] is today in the city's timezone, which is what
+      // isNightTime needs
       sunrise: data.daily.sunrise[0],
       sunset: data.daily.sunset[0],
     },
@@ -74,6 +78,7 @@ const DAILY_DETAIL_FIELDS = [
   "showers_sum",
   "precipitation_hours",
   "cloud_cover_mean",
+  "sunshine_duration",
 ].join(",");
 
 const HOURLY_DETAIL_FIELDS = [
@@ -89,6 +94,7 @@ const HOURLY_DETAIL_FIELDS = [
   "wind_speed_10m",
   "wind_direction_10m",
   "wind_gusts_10m",
+  "cape",
   "is_day",
 ].join(",");
 
@@ -149,6 +155,11 @@ export async function getWeatherDetails(
         showersSum: valueOrNull(daily.showers_sum[i]),
         precipitationHours: valueOrNull(daily.precipitation_hours[i]),
         cloudCoverMean: valueOrNull(daily.cloud_cover_mean[i]),
+        // Open-Meteo returns seconds; convert to hours with 1 decimal
+        sunshineHours:
+          typeof daily.sunshine_duration[i] === "number"
+            ? Math.round(daily.sunshine_duration[i] / 360) / 10
+            : null,
         sunrise: daily.sunrise[i],
         sunset: daily.sunset[i],
       })
@@ -170,6 +181,7 @@ export async function getWeatherDetails(
         windSpeed: roundOrNull(hourly.wind_speed_10m[i]),
         windDirection: valueOrNull(hourly.wind_direction_10m[i]),
         windGusts: roundOrNull(hourly.wind_gusts_10m[i]),
+        cape: valueOrNull(hourly.cape[i]),
         isDay: hourly.is_day[i] === 1,
       })
     ),

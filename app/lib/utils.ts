@@ -7,7 +7,7 @@ export function getCurrentTimeInTimezone(timezone: string): string {
 }
 
 export function formatDate(date: string): string {
-  return new Date(`${date}T00:00:00`).toLocaleDateString("en-US", {
+  return new Date(`${date}T00:00:00Z`).toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",
     year: "numeric",
@@ -20,7 +20,7 @@ export function getDayName(date: string, index: number): string {
     return "Today";
   }
 
-  return new Date(`${date}T00:00:00`).toLocaleDateString("en-US", {
+  return new Date(`${date}T00:00:00Z`).toLocaleDateString("en-US", {
     weekday: "long",
     timeZone: "UTC",
   });
@@ -31,6 +31,10 @@ export function isNightTime(
   sunrise: string,
   sunset: string
 ): boolean {
+  // sunrise/sunset are the city's wall-clock times with no offset, so new Date()
+  // reads them in the runtime's timezone. Rebuilding "now" from the city's
+  // wall clock puts all three in that same frame, so the comparison holds
+  // wherever this runs.
   const now = new Date();
   const currentTime = new Date(
     now.toLocaleString("en-US", { timeZone: timezone })

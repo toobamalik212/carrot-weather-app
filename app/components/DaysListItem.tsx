@@ -19,16 +19,20 @@ export function DaysListItem({
   isSelected = false,
   onSelect,
 }: DaysListItemProps) {
+  const buttonClassName = cn(
+    "flex w-full items-center gap-4 py-3 px-3 rounded-lg text-left transition-colors duration-150 hover:bg-white/5 outline-none focus-visible:ring-2 focus-visible:ring-white/50",
+    // Repeat the selected background on hover. Otherwise hover:bg-white/5
+    // would make the selected row look less selected.
+    isSelected && "bg-white/10 hover:bg-white/10"
+  );
+
   return (
     <li className="border-t border-border [--animation-duration:0]">
       <button
         type="button"
         onClick={onSelect}
         aria-pressed={isSelected}
-        className={cn(
-          "flex w-full items-center gap-4 py-3 px-3 rounded-lg text-left transition-colors duration-150 hover:bg-white/5 outline-none focus-visible:ring-2 focus-visible:ring-white/50",
-          isSelected && "bg-white/10 hover:bg-white/10"
-        )}
+        className={buttonClassName}
       >
         <span className="text-base font-medium text-shadow-sm">{day}</span>
         <Icon className="size-8 ml-auto" />
