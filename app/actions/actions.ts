@@ -32,3 +32,21 @@ export async function getWeather(
     })),
   };
 }
+
+// Fetches weather for several cities in parallel, keyed by slug.
+// Cities whose request fails are left out of the result.
+export async function getWeatherForCities(
+  cities: { slug: string; latitude: number; longitude: number }[]
+): Promise<Record<string, WeatherData>> {
+  const results = await Promise.allSettled(
+    cities.map((city) => getWeather(city.latitude, city.longitude))
+  );
+
+  const weatherBySlug: Record<string, WeatherData> = {};
+  results.forEach((result, index) => {
+    if (result.status === "fulfilled") {
+      weatherBySlug[cities[index].slug] = result.value;
+    }
+  });
+  return weatherBySlug;
+}

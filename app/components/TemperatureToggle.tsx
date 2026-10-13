@@ -8,11 +8,7 @@ export function TemperatureToggle() {
 
   return (
     <div className="flex items-center gap-2 text-sm font-medium">
-      <span
-        className={
-          unit === "C" ? "text-foreground" : "text-muted-foreground"
-        }
-      >
+      <span className="text-white">
         Celsius
       </span>
       <Switch
@@ -21,11 +17,7 @@ export function TemperatureToggle() {
         aria-label={`Switch to ${unit === "C" ? "Fahrenheit" : "Celsius"}`}
         className="data-checked:bg-sky-500"
       />
-      <span
-        className={
-          unit === "F" ? "text-foreground" : "text-muted-foreground"
-        }
-      >
+      <span className="text-white">
         Fahrenheit
       </span>
     </div>

@@ -1,6 +1,6 @@
 import { createElement } from "react";
 import { notFound } from "next/navigation";
-import { locations, getLocationBySlug } from "../data/locations";
+import { cities } from "@/data/cities";
 import { getWeather } from "../actions/actions";
 import { getWeatherIcon } from "../lib/weatherIcons";
 import { getWeatherDescription } from "../lib/weatherDescriptions";
@@ -14,25 +14,19 @@ import {
 import { DaysListItem } from "../components/DaysListItem";
 import { TemperatureDisplay } from "../components/TemperatureDisplay";
 
-export function generateStaticParams() {
-  return locations.map((location) => ({
-    slug: location.slug,
-  }));
-}
-
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
 export default async function LocationPage({ params }: PageProps) {
   const { slug } = await params;
-  const location = getLocationBySlug(slug);
+  const location = cities.find((city) => city.slug === slug);
 
   if (!location) {
     notFound();
   }
 
-  const weather = await getWeather(location.lat, location.lon);
+  const weather = await getWeather(location.latitude, location.longitude);
   const todayForecast = weather.daily[0];
   const Icon = getWeatherIcon(weather.current.weatherCode);
   const description = getWeatherDescription(weather.current.weatherCode);
@@ -52,7 +46,7 @@ export default async function LocationPage({ params }: PageProps) {
               <h2 className="text-xl font-semibold text-shadow-md">
                 {location.name}
               </h2>
-              <p className="text-base text-muted-foreground text-shadow-sm">
+              <p className="text-base text-white text-shadow-sm">
                 {formatDate(todayForecast.date)}{" "}
                 {getCurrentTimeInTimezone(weather.current.timezone)}
               </p>
@@ -64,7 +58,7 @@ export default async function LocationPage({ params }: PageProps) {
                   value={weather.current.temperature}
                   className="text-6xl font-light text-shadow-lg"
                 />
-                <p className="text-base text-muted-foreground text-shadow-sm">
+                <p className="text-base text-white text-shadow-sm">
                   {description}
                 </p>
               </div>
